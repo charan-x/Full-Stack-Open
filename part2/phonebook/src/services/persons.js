@@ -1,29 +1,32 @@
-import axios from "axios";
+import axios from 'axios'
+const baseURL = "/api/persons"
 
-const baseUrl = "/api/persons";
+const getPersons = async () => {
+     const request = axios.get(baseURL)
+     const response = await request
+    return response.data
+}
 
-const create = (newPerson) => {
-  const request = axios.post(baseUrl, newPerson);
+const postPerson = async (person) => {
+    const request = axios.post(baseURL,person)
+    const response = await request
+    return response.data
+}
 
-  return request.then((response) => response.data);
-};
+const deletePerson = async (id) => {
+    const request = axios.delete(`${baseURL}/${id}`)
+    const response = await request
+    return response.data
+}
 
-const getAll = () => {
-  const request = axios.get(baseUrl);
-
-  return request.then((response) => response.data);
-};
-
-const update = (id, newPerson) => {
-  const request = axios.put(`${baseUrl}/${id}`, newPerson);
-
-  return request.then((response) => response.data);
-};
-
-const remove = (id) => {
-  const request = axios.delete(`${baseUrl}/${id}`);
-
-  return request;
-};
-
-export default { create, getAll, update, remove };
+const putPerson = async (newPhonebook,id) => {
+    const request = axios.put(`${baseURL}/${id}`,newPhonebook)
+    const response = await request
+    return response.data
+}
+export default {
+    getPersons,
+    postPerson,
+    deletePerson,
+    putPerson
+}
