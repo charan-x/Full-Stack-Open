@@ -1,63 +1,45 @@
-import React, { useState, Fragment } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 
-const Blog = ({ blog, like, remove }) => {
-  const [show, setShow] = useState(false);
+const Blog = ({ blog, handleLikes, handleRemoving }) => {
 
-  const handleOnClick = () => {
-    const likedBlog = {
-      user: blog.user.id,
-      likes: blog.likes + 1,
-      author: blog.author,
-      title: blog.title,
-      url: blog.url,
-    };
-    like(blog.id, likedBlog);
-  };
-
-  const handleDelete = () => {
-    if (window.confirm(`do you want to remove ${blog.title}`)) {
-      remove(blog.id);
-    }
-  };
+  const [showfull,setShowFull] = useState(false)
 
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
     border: 'solid',
     borderWidth: 1,
-    marginBottom: 5,
-  };
+    marginBottom: 5
+  }
+
+  const showFullBlog = () => {
+    return (
+      <div>
+        <p>{blog.url}</p>
+        <p>{blog.likes} <button className="like" onClick={() => handleLikes(blog.id,blog.likes)}>like</button></p>
+        <p>{blog.user.name}</p>
+        <button className='remove-button' onClick={() => handleRemoving(blog)}>Remove</button>
+      </div>
+    )
+  }
 
   return (
-    <div style={blogStyle} className='blog'>
-      {blog.title} | {blog.author}
-      <button onClick={() => setShow(!show)}>{show ? 'hide' : 'view'}</button>
-      <br />
-      {show && (
-        <div className='blogInfo'>
-          {blog.url}
-          <br />
-          likes: {blog.likes}{' '}
-          <button className='btnLikes' onClick={handleOnClick}>
-            likes
-          </button>
-          <br />
-          {blog.user.name}
-          <br />
-          <button className='btnDelete' onClick={handleDelete}>
-            delete
-          </button>
-        </div>
-      )}
+    <div style={blogStyle} className="blog">
+      <b>{blog.title}</b> <i>{blog.author}</i> <button onClick={() => setShowFull(!showfull)}>{showfull ? 'hide': 'view'}</button>
+      {showfull && showFullBlog()}
     </div>
-  );
-};
+  )
+}
 
-Blog.prototype = {
-  blog: PropTypes.object.isRequired,
-  like: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired,
-};
+export default Blog
 
-export default Blog;
+Blog.propTypes = {
+  setUpdate: PropTypes.func,
+  blog: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    author: PropTypes.string,
+    url: PropTypes.string,
+    likes: PropTypes.number.isRequired
+  })
+}

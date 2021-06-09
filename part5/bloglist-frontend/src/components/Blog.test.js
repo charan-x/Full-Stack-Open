@@ -1,50 +1,58 @@
-import React from 'react';
-import '@testing-library/jest-dom/extend-expect';
-import { render, fireEvent } from '@testing-library/react';
+import React from "react";
+import "@testing-library/react";
+import "@testing-library/jest-dom";
+import Blog from "./Blog";
+import { render, fireEvent } from "@testing-library/react";
+import blogService from '../services/blogs'
+import BlogForm from "./BlogForm";
 
-import Blog from './Blog';
+describe("<Blog/>", () => {
+	let component;
+	let sampleBlog = {
+		likes: 8,
+		title: "Go To Statement Considered Harmful",
+		author: "Edsger W. Dijkstra",
+		url:
+			"http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+		user: "5f282041d7c32d195801e464",
+	};
+    
+	let mockHandler = jest.fn()
 
-let component;
+	blogService.updateBlog = jest.fn().mockImplementation(() => {
+		return Promise.resolve({"success": true})
+	})
 
-const blog = {
-  title: 'Batman: Year One',
-  author: 'Frank Miller',
-  url: 'www.batmanone.com',
-  likes: 666,
-  user: {
-    name: 'Juan D',
-  },
-};
-const mockHandler = jest.fn();
-beforeEach(() => {
-  component = render(<Blog blog={blog} like={mockHandler} />);
-});
+	beforeEach(() => {
+		component = render(<Blog blog={sampleBlog} handleLikes={mockHandler}/>);
+    });
+    
+	test("the component is displaying blog title and author by default", () => {
+        expect(component.container).toHaveTextContent(sampleBlog.title)
+		expect(component.container).toHaveTextContent(sampleBlog.author)
+		expect(component.container).not.toHaveTextContent(sampleBlog.likes)
+		expect(component.container).not.toHaveTextContent(sampleBlog.url)
 
-test('Blog renders title and autor, but no url and likes', () => {
-  const blogDiv = component.container.querySelector('.blog');
-  expect(blogDiv).toHaveTextContent('Batman: Year One | Frank Miller');
-  expect(blogDiv).not.toHaveTextContent('www.batmanone.com');
-  expect(blogDiv).not.toHaveTextContent(666);
-});
+    });
 
-test('clicking view button shown url and likes', () => {
-  const blogDiv = component.container.querySelector('.blog');
-  const btn = component.getByText('view');
+	test("the component is displaying url and likes after clicking button",() => {
+		const button = component.getByText('view')
+		fireEvent.click(button)
 
-  fireEvent.click(btn);
-  expect(blogDiv).toHaveTextContent('www.batmanone.com');
-  expect(blogDiv).toHaveTextContent(666);
-});
+		expect(component.container).toHaveTextContent(sampleBlog.likes)
+		expect(component.container).toHaveTextContent(sampleBlog.url)
+	})
 
-test('clicking like button twice, calls the handler twice', () => {
-  const btn = component.getByText('view');
-  fireEvent.click(btn);
+	test("if the like button is clicked twice, the event handler should be called twice",() => {
+		
+		const viewButton = component.getByText('view')
+		fireEvent.click(viewButton)
+		
+		const likeButton = component.getByText("like")
 
-  const btnLikes = component.container.querySelector('.btnLikes');
+		fireEvent.click(likeButton)
+		fireEvent.click(likeButton)
 
-  for (let x = 0; x < 2; x++) {
-    fireEvent.click(btnLikes);
-  }
-
-  expect(mockHandler.mock.calls).toHaveLength(2);
+		expect(mockHandler.mock.calls).toHaveLength(2)
+	})
 });
